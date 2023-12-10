@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+
+  api.getway:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - api.user.0
+      - api.user.1
+      - api.user.2
+      - front.admin
+      - front.public
+      - websocket.sunny
+
+  front.public:
+    build: ./frontend/public
+    command: sh -c " npm install && npm start "
+    volumes:
+      - ./frontend/public:/usr/src/app
+
+  front.admin:
+    build: ./frontend/admin
+    command: sh -c " npm install && npm start "
+    volumes:
+      - ./frontend/admin:/usr/src/app
+
+
+  api.user.0:
+    build: ./backend/user
+    command: sh -c " npm install && npm start "
+    environment:
+      - SERVER_NAME="Api Jonny"
+    volumes:
+      - ./backend/user/src:/usr/src/app
+
+  api.user.1:
+    build: ./backend/user
+    command: sh -c " npm install && npm start "
+    volumes:
+      - ./backend/user/src:/usr/src/app
+    environment:
+      - SERVER_NAME="Api Sunny"
+
+  api.user.2:
+    build: ./backend/user
+    command: sh -c " npm install && npm start "
+    volumes:
+      - ./backend/user/src:/usr/src/app
+    environment:
+      - SERVER_NAME="Api Funny"
+
+  websocket.sunny:
+    build: ./notifications/websocket
+    command: sh -c " npm install && npm start "
+    volumes:
+      - ./notifications/websocket/src:/usr/src/app
+
+
+  # Адаптер для сокет соединений
+  websocket.redis:
+    image: redis:alpine
+
